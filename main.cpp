@@ -33,6 +33,7 @@ int getIntInput();
 int menuHandler( int choice );
 void doFilterToImage();
 void blackAndWhite();
+void invertImage();
 
 
 
@@ -101,6 +102,10 @@ int menuHandler( int choice ){
             // save the new image 
             saveNewGrayScaleImage();
             return 0;
+        case 2:
+            invertImage();
+            saveNewGrayScaleImage();
+            return 0;
         default:
             helper::println("something really wrong happened");
             return -1;
@@ -129,20 +134,6 @@ void doFilterToImage(){
     // do filters here
 }
 
-void blackAndWhite(){
-    for( int i = 0; i < 256 ; i++) {
-        for( int j = 0; j < 256 ; j++) {
-            // check if pixel value is less than 127 we make it black else we make it white
-            if( int(image[i][j]) < 127 ){
-                image[i][j] = 0;
-            }else{
-                image[i][j] = 255;
-            }
-        }
-    }
-}
-
-
 void loadGrayScaleImage(){
     char imageFileName[200];                        // stores image path
 
@@ -167,4 +158,29 @@ void saveNewGrayScaleImage(){
     // save new grayscale image
     int isOk = writeGSBMP( imageFileName, image );       
 }
+
+
+// filter - 1
+void blackAndWhite(){
+    for( int i = 0; i < 256 ; i++) {
+        for( int j = 0; j < 256 ; j++) {
+            // check if pixel value is less than 127 we make it black else we make it white
+            if( int(image[i][j]) < 127 ){
+                image[i][j] = 0;
+            }else{
+                image[i][j] = 255;
+            }
+        }
+    }
+}
+
+// filter - 2
+void invertImage(){
+    for( int i = 0; i < 256 ; i++) {
+        for( int j = 0; j < 256 ; j++) {
+            image[i][j] = ~ ( int(image[i][j]) );
+        }
+    }
+}
+
 
