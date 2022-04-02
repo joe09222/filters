@@ -32,6 +32,7 @@ void menuPrompt();
 int getIntInput();
 int menuHandler( int choice );
 void doFilterToImage();
+void blackAndWhite();
 
 
 
@@ -96,7 +97,7 @@ int menuHandler( int choice ){
     {
         case 1:
             // do filter 1 to image 
-            doFilterToImage();
+            blackAndWhite();
             // save the new image 
             saveNewGrayScaleImage();
             return 0;
@@ -127,6 +128,20 @@ int getIntInput(){
 void doFilterToImage(){
     // do filters here
 }
+
+void blackAndWhite(){
+    for( int i = 0; i < 256 ; i++) {
+        for( int j = 0; j < 256 ; j++) {
+            // check if pixel value is less than 127 we make it black else we make it white
+            if( int(image[i][j]) < 127 ){
+                image[i][j] = 0;
+            }else{
+                image[i][j] = 255;
+            }
+        }
+    }
+}
+
 
 void loadGrayScaleImage(){
     char imageFileName[200];                        // stores image path
