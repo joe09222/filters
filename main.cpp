@@ -34,7 +34,7 @@ int menuHandler( int choice );
 void doFilterToImage();
 void blackAndWhite();
 void invertImage();
-
+void MergeImages();
 
 
 // Global Variabels 
@@ -106,6 +106,10 @@ int menuHandler( int choice ){
             invertImage();
             saveNewGrayScaleImage();
             return 0;
+        case 3:
+            MergeImages();
+            saveNewGrayScaleImage();
+            return 0;
         default:
             helper::println("something really wrong happened");
             return -1;
@@ -162,6 +166,7 @@ void saveNewGrayScaleImage(){
 
 // filter - 1
 void blackAndWhite(){
+    // loop over every pixel
     for( int i = 0; i < 256 ; i++) {
         for( int j = 0; j < 256 ; j++) {
             // check if pixel value is less than 127 we make it black else we make it white
@@ -176,11 +181,37 @@ void blackAndWhite(){
 
 // filter - 2
 void invertImage(){
+    // loop over every pixel
     for( int i = 0; i < 256 ; i++) {
         for( int j = 0; j < 256 ; j++) {
             image[i][j] = ~ ( int(image[i][j]) );
         }
     }
+}
+
+// filter - 3
+void MergeImages() {
+
+    // read another image in variable image 2 
+    unsigned char image2[256][256];
+    char imageFileName[200];                        // stores image path
+
+    cout << "ENTER FILENAME OF IMAGE YOU WANT TO MERGE " << endl;
+    cin >> imageFileName;                           // get image path
+    strcat(imageFileName, ".bmp");                  // appned .bmp to the path 
+
+    
+    // read gray scale image fron the file we chosen to the image2 array
+    int isOk = readGSBMP( imageFileName, image2 ); 
+
+    // loop over every pixel
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 0; j < 256 ; j++){
+            // we assign pixel -> average of corsponding pixel in the two images
+            image[i][j] = (int(image[i][j]) + int(image2[i][j])) / 2;
+        }
+    }
+
 }
 
 
