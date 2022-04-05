@@ -1,6 +1,7 @@
 #include <iostream>
 #include <limits>
 #include <cstring>
+#include <cmath>
 #include "bmplib.h"
 
 
@@ -24,10 +25,10 @@ namespace helper {
 
 
 // Function declerations 
-void loadGrayScaleImage();
-void saveNewGrayScaleImage();
+void loadGrayScaleImage( unsigned char imageArray[256][256]);
+void saveNewGrayScaleImage( unsigned char imageArray[256][256] );
 
-void menu();
+void menu(); 
 void menuPrompt();
 int getIntInput();
 int menuHandler( int choice );
@@ -35,6 +36,16 @@ void doFilterToImage();
 void blackAndWhite();
 void invertImage();
 void MergeImages();
+void flip();
+void flipH();
+void flipV();
+void adjustBrightness( bool isDarken );
+void drakenAndLighten();
+void detectEdges();
+void rotate90();
+void rotate180();
+void rotate270();
+void doRotation();
 
 
 // Global Variabels 
@@ -51,7 +62,7 @@ void menu(){
     while( true ){
         helper::println("WELCOME TO BEST IMAGE FILTER IN FCAI");
         // read grayscale image 
-        loadGrayScaleImage(); 
+        loadGrayScaleImage( image ); 
 
         // get menu choice 
         int menuChoice = -1;
@@ -87,8 +98,8 @@ void menuPrompt(){
     helper::println("2- Invert Filter");
     helper::println("3- Merge Filter");
     helper::println("4- Flip Image");
-    helper::println("5- Darken and Lighten Image");
-    helper::println("6- Rotate Image");
+    helper::println("5- Rotate Image");
+    helper::println("6- Darken and Lighten Image");
     helper::println("7- Detect Image Edges");
     helper::println("0- to exit");
 }
@@ -100,15 +111,31 @@ int menuHandler( int choice ){
             // do filter 1 to image 
             blackAndWhite();
             // save the new image 
-            saveNewGrayScaleImage();
+            saveNewGrayScaleImage( image );
             return 0;
         case 2:
             invertImage();
-            saveNewGrayScaleImage();
+            saveNewGrayScaleImage( image );
             return 0;
         case 3:
             MergeImages();
-            saveNewGrayScaleImage();
+            saveNewGrayScaleImage( image );
+            return 0;
+        case 4:
+            flip();
+            saveNewGrayScaleImage( image );
+            return 0;
+        case 5:
+            // we will save the file inside the function 
+            doRotation();
+            return 0;
+        case 6:
+            drakenAndLighten();
+            saveNewGrayScaleImage( image );
+            return 0;
+        case 7:
+            detectEdges();
+            saveNewGrayScaleImage( image );
             return 0;
         default:
             helper::println("something really wrong happened");
@@ -138,7 +165,7 @@ void doFilterToImage(){
     // do filters here
 }
 
-void loadGrayScaleImage(){
+void loadGrayScaleImage( unsigned char imageArray[256][256] = image ){
     char imageFileName[200];                        // stores image path
 
     cout << "ENTER IMAGE FILENAME" << endl;
@@ -147,11 +174,11 @@ void loadGrayScaleImage(){
 
     
     // read gray scale image fron the file we chosen to the image array
-    int isOk = readGSBMP( imageFileName, image );    
+    int isOk = readGSBMP( imageFileName, imageArray );    
 
 }
 
-void saveNewGrayScaleImage(){
+void saveNewGrayScaleImage( unsigned char imageArray[256][256] = image ){
     char imageFileName[200];                        // stores image path
 
     cout << "ENTER IMAGE NEW FILENAME" << endl;
@@ -160,7 +187,7 @@ void saveNewGrayScaleImage(){
 
     
     // save new grayscale image
-    int isOk = writeGSBMP( imageFileName, image );       
+    int isOk = writeGSBMP( imageFileName, imageArray );       
 }
 
 
@@ -170,7 +197,7 @@ void blackAndWhite(){
     for( int i = 0; i < 256 ; i++) {
         for( int j = 0; j < 256 ; j++) {
             // check if pixel value is less than 127 we make it black else we make it white
-            if( int(image[i][j]) < 127 ){
+            if( image[i][j] < 127 ){
                 image[i][j] = 0;
             }else{
                 image[i][j] = 255;
@@ -184,7 +211,7 @@ void invertImage(){
     // loop over every pixel
     for( int i = 0; i < 256 ; i++) {
         for( int j = 0; j < 256 ; j++) {
-            image[i][j] = ~ ( int(image[i][j]) );
+            image[i][j] = ~image[i][j];
         }
     }
 }
@@ -194,24 +221,211 @@ void MergeImages() {
 
     // read another image in variable image 2 
     unsigned char image2[256][256];
-    char imageFileName[200];                        // stores image path
 
     cout << "ENTER FILENAME OF IMAGE YOU WANT TO MERGE " << endl;
-    cin >> imageFileName;                           // get image path
-    strcat(imageFileName, ".bmp");                  // appned .bmp to the path 
 
-    
-    // read gray scale image fron the file we chosen to the image2 array
-    int isOk = readGSBMP( imageFileName, image2 ); 
+    loadGrayScaleImage( image2 );
 
     // loop over every pixel
     for( int i = 0; i < 256 ; i++){
         for( int j = 0; j < 256 ; j++){
             // we assign pixel -> average of corsponding pixel in the two images
-            image[i][j] = (int(image[i][j]) + int(image2[i][j])) / 2;
+            image[i][j] = ( image[i][j]  + image2[i][j]) / 2;
         }
     }
 
 }
+
+// filter - 4 flip 
+
+void flip(){
+    helper::println("Do you want to flip horizontal or vertical ");
+    helper::println("0- horizlontal");
+    helper::println("any- verical");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 0){
+        flipH();
+    }else{
+        flipV();
+    }
+}
+
+void flipH(){
+    for( int i = 0; i < 256 ; i++){
+        // we loop over half the columns not all since we swapping 2 values
+        for( int j = 0; j < (256 / 2) ; j++){
+            // swap left and right columns
+            // swap  j -> { 0 -> 255 } => { 1 -> 254 } => ....
+            int temp = image[i][j];
+            image[i][j] = image[i][256 - j];
+            image[i][256-j] = temp;
+        }
+    }
+}
+
+void flipV(){
+    // we loop over half the rows not all since we swapping 2 values
+    for( int i = 0; i < (256 / 2) ; i++){
+        for( int j = 0; j < 256 ; j++){
+            // swap upper and lower rows
+            // swap i-> { 0 -> 255 } => { 1 -> 254 } => ....
+            int temp = image[i][j];
+            image[i][j]= image[256-i][j];
+            image[256-i][j]= temp;
+        }
+    }
+}
+
+
+// filter - 5
+
+// VERY STUPID IMPLEMENTATION OF ROTATION { YOU CANT USE DYNAMIC ANGELS }
+
+void doRotation(){
+    helper::println("Do you want to Rotate image by 90 | 180 | 270");
+    helper::println("1- 90");
+    helper::println("2- 180");
+    helper::println("any num except 1&2 - 270");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 1){
+        rotate90();
+    }else if (userChoice == 2) {
+        rotate180();
+    }  
+    else {
+        rotate270();
+    }
+}
+void rotate90() {
+
+    unsigned char image2[256][256];
+
+    for( int i = 0; i < 256 ; i++) {
+        for( int j = 0; j < 256; j++) {
+            // we assign the first column in image 2 -> to the first row in image 1  -> and so on
+            image2[255 - j ][i] = image[i][j];
+        }
+    }
+
+    saveNewGrayScaleImage( image2 );
+
+}
+
+void rotate180() {
+    unsigned char image2[256][256];
+
+    for( int i = 0; i < 256 ; i++) {
+        for( int j = 0; j < 256; j++) {
+            // we assign the last row of the new image to the reversed(first row) of image 1 -> and so on 
+            image2[255 - i][j] = image[i][255 - j];
+        }
+    }
+    saveNewGrayScaleImage( image2 );
+}
+
+void rotate270() {
+    unsigned char image2[256][256];
+
+    for( int i = 0; i < 256 ; i++) {
+        for( int j = 0; j < 256; j++) {
+            // we assign the last column in image 2 -> to the reversed(first row in image 1)  
+            image2[255 - j][255 - i] = image[i][255 - j];
+        }
+    }
+
+    saveNewGrayScaleImage( image2 );
+}
+
+
+// filter - 6 
+
+void adjustBrightness( bool isDarken ){
+    // we loop over all the rows
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 0; j < 256 ; j++){
+            // get current pixel value
+            int temp = image[i][j];
+            int calc;
+            // if we want to darken
+            if( isDarken )
+                // we add current value - half it 
+                calc = temp - ( temp * 0.5 );
+            // if we want to brighten
+            else 
+                // we add current value + half it 
+                calc = temp + ( temp * 0.5 );
+            // truncate value to 0 and 255 [ becuase they are our limits]
+            if( calc >= 255 ){
+                calc = 255;
+            }else if (calc <= 0) {
+                calc = 0;
+            }
+            // assign new value to the current pixel
+            image[i][j] = calc;
+        }
+    }
+}
+
+void drakenAndLighten(){
+    helper::println("Do you want to Draken or Brighten");
+    helper::println("0- Darken");
+    helper::println("any- Brighten");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 0){
+        adjustBrightness( true );
+    }else{
+        adjustBrightness( false );
+    }
+}
+
+// filter - 7
+void detectEdges(){
+    // we loop over all the rows
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 0; j < 256 ; j++){
+            int gx = 0;
+            int gy = 0;
+
+            // get top values 
+            for( int k = 0; k < 2 ;k++){
+                gx += -1 * image[i - 1][j - 1] ;
+                gx += 1 * image[i - 1][j + 1] ;
+                
+                gy += 1 * image[i - 1][j - 1] ;
+                gy += 2 * image[i - 1][j] ;
+                gy += 1 * image[i - 1][j + 1] ;
+            }
+            // current row
+            for( int k = 0; k < 2 ;k++){
+                gx += -2 * image[i][j - 1] ;
+                gx += 2 * image[i][j + 1] ;
+
+            }
+            // current row
+            for( int k = 0; k < 2 ;k++){
+                gx += -1 * image[i + 1][j - 1] ;
+                gx += 1 * image[i + 1][j + 1] ;
+
+                gy += -1 * image[i + 1][j - 1] ;
+                gy += -2 * image[i + 1][j] ;
+                gy += -1 * image[i + 1][j + 1] ;
+            }
+
+            int newVal = ceil(sqrt( (gy * gy) + (gx * gx) ));
+            
+            image[i][j] = newVal;
+        }
+    }
+}
+
+
+
+
 
 
