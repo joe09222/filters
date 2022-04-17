@@ -46,6 +46,7 @@ void rotate180();
 void rotate270();
 void drakenAndLighten();
 void adjustBrightness( bool isDarken );
+void detectEdges();
 
 // Global Variabels 
 unsigned char image[256][256][3];          // image will be stored in 2d matrix
@@ -132,6 +133,7 @@ int menuHandler( int choice ){
             saveRGBImage( image );
             return 0;
         case 7:
+            detectEdges();
             return 0;
         case 9:
             return 0;
@@ -181,6 +183,19 @@ void saveRGBImage( unsigned char imageArray[256][256][3] ){
     // read gray scale image fron the file we chosen to the image array
     int isOk = writeRGBBMP( imageFileName, imageArray );    
 }
+
+void saveNewGrayScaleImage( unsigned char imageArray[256][256] ){
+    char imageFileName[200];                        // stores image path
+
+    cout << "ENTER IMAGE NEW FILENAME" << endl;
+    cin >> imageFileName;                           // get image path
+    strcat(imageFileName, ".bmp");                  // appned .bmp to the path 
+
+    
+    // save new grayscale image
+    int isOk = writeGSBMP( imageFileName, imageArray );       
+}
+
 
 
 // filter - 1 
@@ -399,3 +414,61 @@ void adjustBrightness( bool isDarken ){
         }
     }
 }
+
+
+
+// filter - 7 
+void detectEdges(){
+    unsigned char grayScaleImage[256][256];
+
+    // convert rgb image to grayscale image
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 0; j < 256 ; j++) {
+            // algorthim:  0.299 * R + 0.587 * G + 0.114 * B
+            int grayScalePixel =  0.299 * image[i][j][0] + 0.587 * image[i][j][1] + 0.114 * image[i][j][2];
+            grayScaleImage[i][j] = grayScalePixel;
+        }
+    }
+
+    // use normal edge detetction algorthim for grayscale image
+    // we loop over all the rows
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 0; j < 256 ; j++){
+            int gx = 0;
+            int gy = 0;
+
+            // upper row pixels
+            gx += -1 * grayScaleImage[i - 1][j - 1] ;
+            gx += 1 * grayScaleImage[i - 1][j + 1] ;
+            
+            gy += 1 * grayScaleImage[i - 1][j - 1] ;
+            gy += 2 * grayScaleImage[i - 1][j] ;
+            gy += 1 * grayScaleImage[i - 1][j + 1] ;
+
+            // current row pixels 
+            gx += -2 * grayScaleImage[i][j - 1] ;
+            gx += 2 * grayScaleImage[i][j + 1] ;
+
+            // below row pixels
+            gx += -1 * grayScaleImage[i + 1][j - 1] ;
+            gx += 1 * grayScaleImage[i + 1][j + 1] ;
+
+            gy += -1 * grayScaleImage[i + 1][j - 1] ;
+            gy += -2 * grayScaleImage[i + 1][j] ;
+            gy += -1 * grayScaleImage[i + 1][j + 1] ;
+
+            int newPixelVal = floor(sqrt( (gy * gy) + (gx * gx) ));
+            
+            if (newPixelVal > 255)
+                newPixelVal = 0;
+            else
+                newPixelVal = 255;
+
+            grayScaleImage[i][j] = newPixelVal;  
+        }
+    }
+    saveNewGrayScaleImage( grayScaleImage );
+
+
+}
+
