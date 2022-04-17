@@ -47,6 +47,11 @@ void rotate180();
 void rotate270();
 void doRotation();
 
+void shrinkImageHalf();
+void shrinkImageQuarter();
+void shrinkImageThird();
+void shrinkImage();
+
 
 // Global Variabels 
 unsigned char image[256][256];          // image will be stored in 2d matrix
@@ -101,6 +106,7 @@ void menuPrompt(){
     helper::println("5- Rotate Image");
     helper::println("6- Darken and Lighten Image");
     helper::println("7- Detect Image Edges");
+    helper::println("9- Shrink image");
     helper::println("0- to exit");
 }
 
@@ -136,6 +142,9 @@ int menuHandler( int choice ){
         case 7:
             detectEdges();
             saveNewGrayScaleImage( image );
+            return 0;
+        case 9:
+            shrinkImage();
             return 0;
         default:
             helper::println("something really wrong happened");
@@ -422,6 +431,128 @@ void detectEdges(){
             image[i][j] = newVal;
         }
     }
+}
+
+
+
+// filter 9 
+
+void shrinkImage() {
+    helper::println("Do you want to shrink image");
+    helper::println("0- half the size");
+    helper::println("1- third the size");
+    helper::println("any- quarter the size");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 0){
+        shrinkImageHalf();
+    }else if ( userChoice == 1){
+        shrinkImageThird();
+    }else {
+        shrinkImageQuarter();
+    }
+}
+
+void shrinkImageHalf() {
+    unsigned char image2[256][256];          // image will be stored in 2d matrix
+
+    int currentRow = 0;
+    int currentCol = 0;
+
+    for( int i = 0; i < 256 ; i+= 2){
+        currentCol = 0;
+        for( int j = 0; j < 256 ; j+= 2){
+            image2[currentRow][currentCol] = image[i][j];
+            currentCol++;
+        }
+        currentRow++;
+    }
+
+
+    for( int i = 0; i < 128 ;i++){
+        for( int j = 128; j < 256 ; j++){
+            image2[i][j] = 255;
+        }
+    }
+
+    for( int i = 128; i < 256 ;i++){
+        for( int j = 0; j < 256 ; j++){
+            image2[i][j] = 255;
+        }
+    }
+
+
+    saveNewGrayScaleImage( image2 );
+
+}
+
+
+
+void shrinkImageQuarter() {
+    unsigned char image2[256][256];          // image will be stored in 2d matrix
+
+    int currentRow = 0;
+    int currentCol = 0;
+
+    for( int i = 0; i < 256 ; i+= 4){
+        currentCol = 0;
+        for( int j = 0; j < 256 ; j+= 4){
+            image2[currentRow][currentCol] = image[i][j];
+            currentCol++;
+        }
+        currentRow++;
+    }
+
+
+    for( int i = 0; i < 64 ;i++){
+        for( int j = 64; j < 256 ; j++){
+            image2[i][j] = 255;
+        }
+    }
+
+    for( int i = 64; i < 256 ;i++){
+        for( int j = 0; j < 256 ; j++){
+            image2[i][j] = 255;
+        }
+    }
+
+
+    saveNewGrayScaleImage( image2 );
+
+}
+
+void shrinkImageThird() {
+    unsigned char image2[256][256];          // image will be stored in 2d matrix
+
+    int currentRow = 0;
+    int currentCol = 0;
+
+    for( int i = 0; i < 256 ; i+= 3){
+        currentCol = 0;
+        for( int j = 0; j < 256 ; j+= 3){
+            image2[currentRow][currentCol] = image[i][j];
+            currentCol++;
+        }
+        currentRow++;
+    }
+
+
+    for( int i = 0; i < 86 ;i++){
+        for( int j = 86; j < 256 ; j++){
+            image2[i][j] = 255;
+        }
+    }
+
+    for( int i = 86; i < 256 ;i++){
+        for( int j = 0; j < 256 ; j++){
+            image2[i][j] = 255;
+        }
+    }
+
+
+    saveNewGrayScaleImage( image2 );
+
 }
 
 
