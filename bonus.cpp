@@ -33,8 +33,10 @@ void menuPrompt();
 int getIntInput();
 int menuHandler( int choice );
 void loadRGBImage( unsigned char imageArray[256][256][3]);
-void blackAndWhite();
 void saveRGBImage( unsigned char imageArray[256][256][3] );
+void blackAndWhite();
+void invertImage();
+void MergeImages();
 
 
 
@@ -104,8 +106,12 @@ int menuHandler( int choice ){
             saveRGBImage( image );
             return 0;
         case 2:
+            invertImage();
+            saveRGBImage( image );
             return 0;
         case 3:
+            MergeImages();
+            saveRGBImage( image );
             return 0;
         case 4:
             return 0;
@@ -165,6 +171,7 @@ void saveRGBImage( unsigned char imageArray[256][256][3] ){
 }
 
 
+// filter - 1 
 void blackAndWhite() {
     for( int i = 0; i < 256 ;i++) {
         for( int j = 0; j < 256 ; j++) {
@@ -189,4 +196,40 @@ void blackAndWhite() {
 
         }
     }
+}
+
+
+// filter - 2 
+void invertImage() {
+    for( int i = 0; i < 256 ;i++){
+        for( int j = 0; j < 256 ; j++) {
+            // invert every color intensity
+            for( int k = 0; k < 3 ; k++){
+                image[i][j][k] = ~image[i][j][k];
+            }
+        }
+    }
+}
+
+// filter - 3
+
+void MergeImages() {
+
+    // read another image in variable image 2 
+    unsigned char image2[256][256][3];
+
+    cout << "ENTER FILENAME OF IMAGE YOU WANT TO MERGE " << endl;
+
+    loadRGBImage( image2 );
+
+    // loop over every pixel
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 0; j < 256 ; j++){
+            // assign every color intesnity the average of the 2 images colors
+            for( int k = 0; k < 3 ;k++){
+                image[i][j][k] = (image[i][j][k] + image2[i][j][k]) / 2;
+            }
+        }
+    }
+
 }
