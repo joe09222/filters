@@ -44,6 +44,8 @@ void doRotation();
 void rotate90();
 void rotate180();
 void rotate270();
+void drakenAndLighten();
+void adjustBrightness( bool isDarken );
 
 // Global Variabels 
 unsigned char image[256][256][3];          // image will be stored in 2d matrix
@@ -126,6 +128,8 @@ int menuHandler( int choice ){
             doRotation();
             return 0;
         case 6:
+            drakenAndLighten();
+            saveRGBImage( image );
             return 0;
         case 7:
             return 0;
@@ -350,4 +354,48 @@ void rotate270() {
     }
 
     saveRGBImage( image2 );
+}
+
+
+// filter - 6
+void drakenAndLighten(){
+    helper::println("Do you want to Draken or Brighten");
+    helper::println("0- Darken");
+    helper::println("any- Brighten");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 0){
+        adjustBrightness( true );
+    }else{
+        adjustBrightness( false );
+    }
+}
+
+
+void adjustBrightness( bool isDarken ){
+    // we loop over all the rows
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 0; j < 256 ; j++){
+            // if we want to darken
+            // subtract from every component of color half it 
+            if( isDarken ){
+                for( int k = 0; k < 3 ;k++){
+                    image[i][j][k] = image[i][j][k] - (image[i][j][k] * 0.5);
+                    if( image[i][j][k] < 0)
+                        image[i][j][k] = 0;
+                    
+                }
+            }
+            // add from every component of color half it 
+            else {
+                for( int k = 0; k < 3 ;k++){
+                    image[i][j][k] = image[i][j][k] + (image[i][j][k] * 0.5);
+                    if( image[i][j][k] > 255)
+                        image[i][j][k] = 255;
+                    
+                }
+            }
+        }
+    }
 }
