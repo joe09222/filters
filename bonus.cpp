@@ -37,8 +37,13 @@ void saveRGBImage( unsigned char imageArray[256][256][3] );
 void blackAndWhite();
 void invertImage();
 void MergeImages();
-
-
+void flip();
+void flipH();
+void flipV();
+void doRotation();
+void rotate90();
+void rotate180();
+void rotate270();
 
 // Global Variabels 
 unsigned char image[256][256][3];          // image will be stored in 2d matrix
@@ -114,8 +119,11 @@ int menuHandler( int choice ){
             saveRGBImage( image );
             return 0;
         case 4:
+            flip();
+            saveRGBImage( image );
             return 0;
         case 5:
+            doRotation();
             return 0;
         case 6:
             return 0;
@@ -232,4 +240,114 @@ void MergeImages() {
         }
     }
 
+}
+
+// filter - 4
+
+void flip(){
+    helper::println("Do you want to flip horizontal or vertical ");
+    helper::println("0- horizlontal");
+    helper::println("any- verical");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 0){
+        flipH();
+    }else{
+        flipV();
+    }
+}
+
+void flipH(){
+    for( int i = 0; i < 256 ; i++){
+        // we loop over half the columns not all since we swapping 2 values
+        for( int j = 0; j < (256 / 2) ; j++){
+            // swap firs col with las col intensity -> 2nd col with las - 1 intesnity -> ...
+            for( int k = 0; k < 3 ; k++){
+                int temp = image[i][j][k];
+                image[i][j][k] = image[i][256 - j][k];
+                image[i][256-j][k] = temp;
+            }
+        }
+    }
+}
+
+void flipV() {
+    // we loop over half the rows not all since we swapping 2 values
+    for( int i = 0; i < (256 / 2) ; i++){
+        for( int j = 0; j < 256 ; j++){
+            // swap upper and lower rows
+            for( int k = 0; k < 3 ;k++){
+                int temp = image[i][j][k];
+                image[i][j][k]= image[256-i][j][k];
+                image[256-i][j][k]= temp;
+            }
+        }
+    }
+}
+
+
+// filter - 5
+
+void doRotation(){
+    helper::println("Do you want to Rotate image by 90 | 180 | 270");
+    helper::println("1- 90");
+    helper::println("2- 180");
+    helper::println("any num except 1&2 - 270");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 1){
+        rotate90();
+    }else if (userChoice == 2) {
+        rotate180();
+    }  
+    else {
+        rotate270();
+    }
+}
+void rotate90() {
+
+    unsigned char image2[256][256][3];
+
+    for( int i = 0; i < 256 ; i++) {
+        for( int j = 0; j < 256; j++) {
+            // we assign the first column in image 2 -> to the first row in image 1  -> and so on
+            for( int k = 0; k < 3 ; k++){
+                image2[255 - j ][i][k] = image[i][j][k];
+            }
+        }
+    }
+
+    saveRGBImage( image2 );
+
+}
+
+void rotate180() {
+    unsigned char image2[256][256][3];
+
+    for( int i = 0; i < 256 ; i++) {
+        for( int j = 0; j < 256; j++) {
+            // we assign the last row of the new image to the reversed(first row) of image 1 -> and so on 
+            for( int k = 0; k < 3; k++){
+                image2[255 - i][j][k] = image[i][255 - j][k];
+            }
+        }
+    }
+    saveRGBImage( image2 );
+}
+
+void rotate270() {
+    unsigned char image2[256][256][3];
+
+    for( int i = 0; i < 256 ; i++) {
+        for( int j = 0; j < 256; j++) {
+            // we assign the last column in image 2 -> to the reversed(first row in image 1)  
+            for( int k = 0; k < 3 ; k++){
+                image2[255 - j][255 - i][k] = image[i][255 - j][k];
+            }
+        }
+    }
+
+    saveRGBImage( image2 );
 }
