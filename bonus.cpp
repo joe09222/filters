@@ -60,6 +60,11 @@ void mirrorRightHalf();
 void mirrorUpperHalf();
 void mirrorLowerHalf();
 
+void shuffleImage();
+void fillQuarter( unsigned char newQuarter[128][128][3], int quarter );
+
+void blurImage();
+
 
 // Global Variabels 
 unsigned char image[256][256][3];          // image will be stored in 2d matrix
@@ -162,6 +167,12 @@ int menuHandler( int choice ){
             return 0;
         case 10:
             mirrorImage();
+            return 0;
+        case 11:
+            shuffleImage();
+            return 0;
+        case 12:
+            blurImage();
             return 0;
         default:
             return -1;
@@ -805,6 +816,125 @@ void mirrorLowerHalf() {
     saveRGBImage( image2 );
 }
 
+
+
+
+// filter - 11 
+void shuffleImage(){
+
+    helper::println("Enter order of shuffle");
+    int ch1,ch2,ch3,ch4;
+    ch1 = getIntInput();
+    ch2 = getIntInput();
+    ch3 = getIntInput();
+    ch4 = getIntInput();
+
+    unsigned char image2[256][256][3];
+    unsigned char q1[128][128][3];
+    unsigned char q2[128][128][3];
+    unsigned char q3[128][128][3];
+    unsigned char q4[128][128][3];
+
+  
+
+    fillQuarter(q1,ch1);
+    fillQuarter(q2,ch2);
+    fillQuarter(q3,ch3);
+    fillQuarter(q4,ch4);
+
+    // fill first quarter 
+    for( int i = 0; i < 128 ; i++){
+        for( int j = 0; j < 128 ;j++){
+            for( int k = 0; k < 3 ; k++){
+                image2[i][j][k] = q1[i][j][k];
+            }
+        }
+    }
+
+    // fill second quarter 
+    for( int i = 0; i < 128 ; i++){
+        for( int j = 128; j < 256 ;j++){
+            for( int k = 0; k < 3 ; k++){
+                image2[i][j][k] = q2[i][j - 128][k];
+            }
+        }
+    }
+
+    // fill third quarter 
+    for( int i = 128; i < 256 ; i++){
+        for( int j = 0; j < 128 ;j++){
+            for( int k = 0; k < 3 ; k++){
+                image2[i][j][k] = q3[i - 128][j][k];
+            }
+        }
+    }
+
+    // fill forth quarter 
+    for( int i = 128; i < 256 ; i++){
+        for( int j = 128; j < 256 ;j++){
+            for( int k = 0; k < 3 ; k++){
+                image2[i][j][k] = q4[i - 128 ][j - 128][k];
+            }
+        }
+    }
+    saveRGBImage( image2 );
+
+}
+
+void fillQuarter( unsigned char newQuarter[128][128][3], int quarter ){
+
+    int rowIncrementArr[4] = {0,0,128,128};
+    int columnIncrementArr[4] = {0,128,0,128};
+
+    int rowInc = rowIncrementArr[quarter - 1];
+    int columnInc = columnIncrementArr[quarter - 1];
+
+    for( int i = 0; i < 128 ; i++){
+        for( int j = 0; j < 128 ;j++){
+            for( int k = 0; k < 3 ;k++){
+                newQuarter[i][j][k] = image[i + rowInc][j + columnInc][k];
+            }
+        }
+    }
+}
+
+
+
+// filter - 12 
+// guassian blur
+void blurImage() {
+    unsigned char image2[256][256][3];          // image will be stored in 2d matrix
+
+    // 3x3 kernel
+    float kernel[3][3] = {
+        {1,1,1},
+        {1,1,1},
+        {1,1,1}
+    };
+
+    // get kernel sum
+    float kernelSum = 0;
+    for( int i = 0; i < 3 ;i++){
+        for( int j = 0; j < 3 ;j++){
+            kernelSum += kernel[i][j];
+        }
+    }
+
+    for( int i = 0; i < 256 ;i++) {
+        for( int j = 0; j < 256 ; j++) {
+            // 3 x 3 kernel apply it to every pixel
+            for( int k = 0; k < 3 ; k++){
+                int topKernel = image[i-1][j - 1][k] * kernel[0][0] + image[i-1][j][k]  * kernel[0][1] + image[i-1][j+1][k]  * kernel[0][2];
+                int middleKernel = image[i][j - 1][k]  * kernel[1][0] + image[i][j][k]  * kernel[1][1] + image[i][j+1][k]  * kernel[1][2];
+                int lowerKernel = image[i+1][j - 1][k] * kernel[2][0] + image[i+1][j][k] * kernel[2][1] + image[i+1][j+1][k] * kernel[2][2];
+                int newPixelValue = ( (topKernel + middleKernel + lowerKernel) / kernelSum);
+                image2[i][j][k] = newPixelValue;
+            }
+        }
+    }
+
+    saveRGBImage( image2 );
+}
 
 
 
