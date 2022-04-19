@@ -59,6 +59,8 @@ void enlargeImage( int startingRow, int startingCloumn );
 void shuffleImage();
 void fillQuarter( unsigned char newQuarter[128][128], int quarter );
 
+void blurImage();
+
 
 // Global Variabels 
 unsigned char image[256][256];          // image will be stored in 2d matrix
@@ -116,6 +118,7 @@ void menuPrompt(){
     helper::println("8- Enlarge Image");
     helper::println("9- Shrink image");
     helper::println("11- Shuffle image");
+    helper::println("12- Blur image");
     helper::println("0- to exit");
 }
 
@@ -162,6 +165,9 @@ int menuHandler( int choice ){
             return 0;
         case 11:
             shuffleImage();
+            return 0;
+        case 12:
+            blurImage();
             return 0;
         default:
             helper::println("something really wrong happened");
@@ -687,6 +693,45 @@ void fillQuarter( unsigned char newQuarter[128][128], int quarter ){
         }
     }
 }
+
+
+
+
+
+// filter - 12 
+// guassian blur
+void blurImage() {
+    unsigned char image2[256][256];          // image will be stored in 2d matrix
+
+    // 3x3 kernel
+    float kernel[3][3] = {
+        {1,1,1},
+        {1,1,1},
+        {1,1,1}
+    };
+
+    // get kernel sum
+    float kernelSum = 0;
+    for( int i = 0; i < 3 ;i++){
+        for( int j = 0; j < 3 ;j++){
+            kernelSum += kernel[i][j];
+        }
+    }
+
+    for( int i = 0; i < 256 ;i++) {
+        for( int j = 0; j < 256 ; j++) {
+            // 3 x 3 kernel apply it to every pixel
+            int topKernel = image[i-1][j - 1] * kernel[0][0] + image[i-1][j] * kernel[0][1] + image[i-1][j+1] * kernel[0][2];
+            int middleKernel = image[i][j - 1] * kernel[1][0] + image[i][j] * kernel[1][1] + image[i][j+1] * kernel[1][2];
+            int lowerKernel = image[i+1][j - 1]* kernel[2][0] + image[i+1][j]* kernel[2][1] + image[i+1][j+1]* kernel[2][2];
+            int newPixelValue = ( (topKernel + middleKernel + lowerKernel) / kernelSum);
+            image2[i][j] = newPixelValue;
+        }
+    }
+
+    saveNewGrayScaleImage( image2 );
+}
+
 
 
 
