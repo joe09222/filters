@@ -52,6 +52,8 @@ void shrinkImageQuarter();
 void shrinkImageThird();
 void shrinkImage();
 
+void adjustSize();
+void enlargeImage( int startingRow, int startingCloumn );
 
 // Global Variabels 
 unsigned char image[256][256];          // image will be stored in 2d matrix
@@ -106,6 +108,7 @@ void menuPrompt(){
     helper::println("5- Rotate Image");
     helper::println("6- Darken and Lighten Image");
     helper::println("7- Detect Image Edges");
+    helper::println("8- Enlarge Image");
     helper::println("9- Shrink image");
     helper::println("0- to exit");
 }
@@ -142,6 +145,9 @@ int menuHandler( int choice ){
         case 7:
             detectEdges();
             saveNewGrayScaleImage( image );
+            return 0;
+        case 8:
+            adjustSize();
             return 0;
         case 9:
             shrinkImage();
@@ -435,6 +441,51 @@ void detectEdges(){
     }
 }
 
+// filter 8
+
+void adjustSize() {
+    helper::println("Do you want to Enlarge image");
+    helper::println("0- first quarter");
+    helper::println("1- second quarter");
+    helper::println("2- third quarter");
+    helper::println("any- forth quarter");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 0){
+        enlargeImage(0,0);
+    }else if ( userChoice == 1){
+        enlargeImage(0,128);
+    }else if ( userChoice == 2){
+        enlargeImage(128,0);
+    }else {
+        enlargeImage(128,128);
+    }
+
+}
+void enlargeImage( int startingRow, int startingCloumn ){
+    unsigned char image2[256][256];          // image will be stored in 2d matrix
+    
+    
+    int currentRow = (startingRow - 1 );
+    int currentColumn;
+
+    for( int i = 0; i < 256 ;i++){
+        if(i % 2 == 0)
+            currentRow += 1;
+        
+        currentColumn = (startingCloumn - 1);
+            
+        for( int j = 0; j < 256 ; j++){
+            if( j % 2 == 0){
+                currentColumn += 1;
+            }
+            image2[i][j] = image[currentRow][currentColumn];
+        }
+    }
+
+    saveNewGrayScaleImage( image2 );
+}
 
 
 // filter 9 
