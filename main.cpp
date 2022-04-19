@@ -162,7 +162,6 @@ int menuHandler( int choice ){
             return 0;
         case 7:
             detectEdges();
-            saveNewGrayScaleImage( image );
             return 0;
         case 8:
             adjustSize();
