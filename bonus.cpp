@@ -47,6 +47,19 @@ void rotate270();
 void drakenAndLighten();
 void adjustBrightness( bool isDarken );
 void detectEdges();
+void adjustSize();
+void enlargeImage( int startingRow, int startingCloumn );
+void shrinkImage();
+void shrinkImageHalf();
+void shrinkImageQuarter();
+void shrinkImageThird();
+
+void mirrorImage();
+void mirrorLeftHalf();
+void mirrorRightHalf();
+void mirrorUpperHalf();
+void mirrorLowerHalf();
+
 
 // Global Variabels 
 unsigned char image[256][256][3];          // image will be stored in 2d matrix
@@ -102,13 +115,19 @@ void menuPrompt(){
     helper::println("5- Rotate Image");
     helper::println("6- Darken and Lighten Image");
     helper::println("7- Detect Image Edges");
+    helper::println("8- Enlarge Image");
     helper::println("9- Shrink image");
+    helper::println("10- Mirror image");
+    helper::println("11- Shuffle image");
+    helper::println("12- Blur image");
     helper::println("0- to exit");
 }
 
 int menuHandler( int choice ){
     switch ( choice )
     {
+        case 0:
+            return -1;
         case 1:
             blackAndWhite();
             saveRGBImage( image );
@@ -135,7 +154,14 @@ int menuHandler( int choice ){
         case 7:
             detectEdges();
             return 0;
+        case 8:
+            adjustSize();
+            return 0;
         case 9:
+            shrinkImage();
+            return 0;
+        case 10:
+            mirrorImage();
             return 0;
         default:
             return -1;
@@ -183,6 +209,7 @@ void saveRGBImage( unsigned char imageArray[256][256][3] ){
     // read gray scale image fron the file we chosen to the image array
     int isOk = writeRGBBMP( imageFileName, imageArray );    
 }
+
 
 void saveNewGrayScaleImage( unsigned char imageArray[256][256] ){
     char imageFileName[200];                        // stores image path
@@ -471,4 +498,314 @@ void detectEdges(){
 
 
 }
+
+// filter - 8 
+
+
+void adjustSize() {
+    helper::println("Do you want to Enlarge image");
+    helper::println("0- first quarter");
+    helper::println("1- second quarter");
+    helper::println("2- third quarter");
+    helper::println("any- forth quarter");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 0){
+        enlargeImage(0,0);
+    }else if ( userChoice == 1){
+        enlargeImage(0,128);
+    }else if ( userChoice == 2){
+        enlargeImage(128,0);
+    }else {
+        enlargeImage(128,128);
+    }
+
+}
+void enlargeImage( int startingRow, int startingCloumn ){
+    unsigned char image2[256][256][3];          // image will be stored in 3d matrix
+    
+    
+    int currentRow = (startingRow - 1 );
+    int currentColumn;
+
+    for( int i = 0; i < 256 ; i++){
+        if(i % 2 == 0)
+            currentRow += 1;
+        
+        currentColumn = (startingCloumn - 1);
+            
+        for( int j = 0; j < 256 ; j++){
+            if( j % 2 == 0){
+                currentColumn += 1;
+            }
+            
+            for( int k = 0; k < 3 ; k++){
+                image2[i][j][k] = image[currentRow][currentColumn][k];
+            }
+ 
+        }
+    }
+
+    saveRGBImage( image2 );
+
+}
+
+
+// filter 9 
+
+void shrinkImage() {
+    helper::println("Do you want to shrink image");
+    helper::println("0- half the size");
+    helper::println("1- third the size");
+    helper::println("any- quarter the size");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 0){
+        shrinkImageHalf();
+    }else if ( userChoice == 1){
+        shrinkImageThird();
+    }else {
+        shrinkImageQuarter();
+    }
+}
+
+void shrinkImageHalf() {
+    unsigned char image2[256][256][3];          // image will be stored in 2d matrix
+
+    int currentRow = 0;
+    int currentCol = 0;
+
+    for( int i = 0; i < 256 ; i+= 2){
+        currentCol = 0;
+        for( int j = 0; j < 256 ; j+= 2){
+            for( int k = 0; k < 3 ;k++){
+                image2[currentRow][currentCol][k] = image[i][j][k];
+            }
+            currentCol++;
+        }
+        currentRow++;
+    }
+
+
+    for( int i = 0; i < 128 ;i++){
+        for( int j = 128; j < 256 ; j++){
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = 255;
+            }
+        }
+    }
+
+    for( int i = 128; i < 256 ;i++){
+        for( int j = 0; j < 256 ; j++){
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = 255;
+            }
+        }
+    }
+
+
+    saveRGBImage( image2 );
+
+}
+
+
+
+void shrinkImageQuarter() {
+    unsigned char image2[256][256][3];          // image will be stored in 2d matrix
+
+    int currentRow = 0;
+    int currentCol = 0;
+
+    for( int i = 0; i < 256 ; i+= 4){
+        currentCol = 0;
+        for( int j = 0; j < 256 ; j+= 4){
+            for( int k = 0; k < 3 ;k++){
+                image2[currentRow][currentCol][k] = image[i][j][k];
+            }
+            currentCol++;
+        }
+        currentRow++;
+    }
+
+
+    for( int i = 0; i < 64 ;i++){
+        for( int j = 64; j < 256 ; j++){
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = 255;
+            }
+        }
+    }
+
+    for( int i = 64; i < 256 ;i++){
+        for( int j = 0; j < 256 ; j++){
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = 255;
+            }
+        }
+    }
+
+
+    saveRGBImage( image2 );
+
+}
+
+void shrinkImageThird() {
+    unsigned char image2[256][256][3];          // image will be stored in 2d matrix
+
+    int currentRow = 0;
+    int currentCol = 0;
+
+    for( int i = 0; i < 256 ; i+= 3){
+        currentCol = 0;
+        for( int j = 0; j < 256 ; j+= 3){
+            for( int k = 0; k < 3 ;k++){
+                image2[currentRow][currentCol][k] = image[i][j][k];
+            }
+            currentCol++;
+        }
+        currentRow++;
+    }
+
+
+    for( int i = 0; i < 86 ;i++){
+        for( int j = 86; j < 256 ; j++){
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = 255;
+            }
+        }
+    }
+
+    for( int i = 86; i < 256 ;i++){
+        for( int j = 0; j < 256 ; j++){
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = 255;
+            }
+        }
+    }
+
+
+    saveRGBImage( image2 );
+
+}
+
+
+// filter - 10 
+
+void mirrorImage(){
+    helper::println("Do you want to Mirror image");
+    helper::println("0- Left 1/2");
+    helper::println("1- Right 1/2");
+    helper::println("2- Upper 1/2");
+    helper::println("any- Lower 1/2");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 0){
+        mirrorLeftHalf();
+    }else if ( userChoice == 1){
+        mirrorRightHalf();
+    }else if ( userChoice == 2){
+        mirrorUpperHalf();
+    }else {
+        mirrorLowerHalf();
+    }
+}
+
+
+void mirrorLeftHalf(){
+    unsigned char image2[256][256][3];          // image will be stored in 2d matrix
+    // fill first half 
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 0; j < 128 ; j++) {
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = image[i][j][k];
+            }
+        }
+    }
+    // Miror first half in reverse
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 255; j >= 128 ; j--) {
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = image[i][255 - j][k];
+            }
+        }
+    }
+
+    saveRGBImage( image2 );
+}
+
+
+void mirrorRightHalf(){
+    unsigned char image2[256][256][3];          // image will be stored in 2d matrix
+    // fill first half 
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 128; j < 256 ; j++) {
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = image[i][j][k];
+            }
+        }
+    }
+    // Miror first half in reverse
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 256; j >= 128 ; j--) {
+            for( int k = 0; k < 3 ;k++){
+            image2[i][256 - j][k] = image[i][j][k];
+            }
+        }
+    }
+
+    saveRGBImage( image2 );
+}
+
+void mirrorUpperHalf(){
+    unsigned char image2[256][256][3];          // image will be stored in 2d matrix
+    // fill first half 
+    for( int i = 0; i < 128 ; i++){
+        for( int j = 0; j < 256 ; j++) {
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = image[i][j][k];
+            }
+        }
+    }
+
+    // fill second half 
+    for( int i = 255; i >= 128 ; i--) {
+        for( int j = 0; j < 256 ; j++) { 
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = image[255 - i][j][k];
+            }
+        }
+    }
+
+    saveRGBImage( image2 );
+}
+
+void mirrorLowerHalf() {
+    unsigned char image2[256][256][3];          // image will be stored in 2d matrix
+    // fill first half 
+    for( int i = 128; i < 256 ; i++){
+        for( int j = 0; j < 256 ; j++) {
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = image[i][j][k];
+            }
+        }
+    }
+
+    // fill second half 
+    for( int i = 0; i < 128 ; i++) {
+        for( int j = 0; j < 256 ; j++) { 
+            for( int k = 0; k < 3 ;k++){
+                image2[i][j][k] = image[255 - i][j][k];
+            }
+        }
+    }
+
+    saveRGBImage( image2 );
+}
+
+
+
+
 
