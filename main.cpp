@@ -62,6 +62,12 @@ void fillQuarter( unsigned char newQuarter[128][128], int quarter );
 void blurImage();
 
 
+void mirrorImage();
+void mirrorLowerHalf();
+void mirrorUpperHalf();
+void mirrorRightHalf();
+void mirrorLeftHalf();
+
 // Global Variabels 
 unsigned char image[256][256];          // image will be stored in 2d matrix
 
@@ -117,6 +123,7 @@ void menuPrompt(){
     helper::println("7- Detect Image Edges");
     helper::println("8- Enlarge Image");
     helper::println("9- Shrink image");
+    helper::println("10- Mirror image");
     helper::println("11- Shuffle image");
     helper::println("12- Blur image");
     helper::println("0- to exit");
@@ -162,6 +169,9 @@ int menuHandler( int choice ){
             return 0;
         case 9:
             shrinkImage();
+            return 0;
+        case 10:
+            mirrorImage();
             return 0;
         case 11:
             shuffleImage();
@@ -623,6 +633,104 @@ void shrinkImageThird() {
 
     saveNewGrayScaleImage( image2 );
 
+}
+
+// filter - 10 
+
+void mirrorImage(){
+    helper::println("Do you want to Mirror image");
+    helper::println("0- Left 1/2");
+    helper::println("1- Right 1/2");
+    helper::println("2- Upper 1/2");
+    helper::println("any- Lower 1/2");
+    int userChoice;
+    userChoice = getIntInput();
+    
+    if( userChoice == 0){
+        mirrorLeftHalf();
+    }else if ( userChoice == 1){
+        mirrorRightHalf();
+    }else if ( userChoice == 2){
+        mirrorUpperHalf();
+    }else {
+        mirrorLowerHalf();
+    }
+}
+
+
+void mirrorLeftHalf(){
+    unsigned char image2[256][256];          // image will be stored in 2d matrix
+    // fill first half 
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 0; j < 128 ; j++) {
+            image2[i][j] = image[i][j];
+        }
+    }
+    // Miror first half in reverse
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 255; j >= 128 ; j--) {
+            image2[i][j] = image[i][255 - j];
+        }
+    }
+
+    saveNewGrayScaleImage( image2 );
+}
+
+
+void mirrorRightHalf(){
+    unsigned char image2[256][256];          // image will be stored in 2d matrix
+    // fill first half 
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 128; j < 256 ; j++) {
+            image2[i][j] = image[i][j];
+        }
+    }
+    // Miror first half in reverse
+    for( int i = 0; i < 256 ; i++){
+        for( int j = 256; j >= 128 ; j--) {
+            image2[i][256 - j] = image[i][j];
+        }
+    }
+
+    saveNewGrayScaleImage( image2 );
+}
+
+void mirrorUpperHalf(){
+    unsigned char image2[256][256];          // image will be stored in 2d matrix
+    // fill first half 
+    for( int i = 0; i < 128 ; i++){
+        for( int j = 0; j < 256 ; j++) {
+            image2[i][j] = image[i][j];
+        }
+    }
+
+    // fill second half 
+    for( int i = 255; i >= 128 ; i--) {
+        for( int j = 0; j < 256 ; j++) { 
+            image2[i][j] = image[255 - i][j];
+        }
+    }
+
+    saveNewGrayScaleImage( image2 );
+}
+
+void mirrorLowerHalf() {
+    unsigned char image2[256][256];          // image will be stored in 2d matrix
+    // fill first half 
+    for( int i = 128; i < 256 ; i++){
+        for( int j = 0; j < 256 ; j++) {
+            image2[i][j] = image[i][j];
+        }
+    }
+
+    // fill second half 
+    for( int i = 0; i < 128 ; i++) {
+        for( int j = 0; j < 256 ; j++) { 
+            image2[i][j] = image[255 - i][j];
+        }
+    }
+
+    saveNewGrayScaleImage( image2 );
 }
 
 // filter - 11 
