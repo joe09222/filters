@@ -296,7 +296,7 @@ void doRotation(){
     helper::println("Do you want to Rotate image by 90 | 180 | 270");
     helper::println("1- 90");
     helper::println("2- 180");
-    helper::println("any num except 1&2 - 270");
+    helper::println("any num except 1 and 2  - 270");
     int userChoice;
     userChoice = getIntInput();
     
@@ -309,6 +309,8 @@ void doRotation(){
         rotate270();
     }
 }
+
+
 void rotate90() {
 
     unsigned char image2[256][256];
