@@ -428,44 +428,49 @@ void drakenAndLighten(){
     }
 }
 
+
 // filter - 7
-void detectEdges(){
+void detectEdges() {
+
+    unsigned char image2[256][256];          // image will be stored in 2d matrix
+
     // we loop over all the rows
-    for( int i = 0; i < 256 ; i++){
-        for( int j = 0; j < 256 ; j++){
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < 256; j++) {
             int gx = 0;
             int gy = 0;
 
-            // get top values 
-            for( int k = 0; k < 2 ;k++){
-                gx += -1 * image[i - 1][j - 1] ;
-                gx += 1 * image[i - 1][j + 1] ;
-                
-                gy += 1 * image[i - 1][j - 1] ;
-                gy += 2 * image[i - 1][j] ;
-                gy += 1 * image[i - 1][j + 1] ;
-            }
+            // upper row
+            gx += -1 * image[i - 1][j - 1];
+            gx += 1 * image[i - 1][j + 1];
+
+            gy += 1 * image[i - 1][j - 1];
+            gy += 2 * image[i - 1][j];
+            gy += 1 * image[i - 1][j + 1];
+
             // current row
-            for( int k = 0; k < 2 ;k++){
-                gx += -2 * image[i][j - 1] ;
-                gx += 2 * image[i][j + 1] ;
+            gx += -2 * image[i][j - 1];
+            gx += 2 * image[i][j + 1];
 
-            }
-            // current row
-            for( int k = 0; k < 2 ;k++){
-                gx += -1 * image[i + 1][j - 1] ;
-                gx += 1 * image[i + 1][j + 1] ;
+            // below row
+            gx += -1 * image[i + 1][j - 1];
+            gx += 1 * image[i + 1][j + 1];
 
-                gy += -1 * image[i + 1][j - 1] ;
-                gy += -2 * image[i + 1][j] ;
-                gy += -1 * image[i + 1][j + 1] ;
-            }
+            gy += -1 * image[i + 1][j - 1];
+            gy += -2 * image[i + 1][j];
+            gy += -1 * image[i + 1][j + 1];
 
-            int newVal = ceil(sqrt( (gy * gy) + (gx * gx) ));
-            
-            image[i][j] = newVal;
+            int newPixelVal = floor(sqrt((gy * gy) + (gx * gx)));
+
+            if (newPixelVal > 255)
+                newPixelVal = 255;
+            //else
+              //  newPixelVal = 255;
+
+            image2[i][j] = newPixelVal;
         }
     }
+    saveNewGrayScaleImage(image2);
 }
 
 // filter 8
