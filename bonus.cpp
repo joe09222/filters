@@ -498,9 +498,7 @@ void detectEdges(){
             int newPixelVal = floor(sqrt( (gy * gy) + (gx * gx) ));
             
             if (newPixelVal > 255)
-                newPixelVal = 0;
-            else
-                newPixelVal = 255;
+                newPixelVal = ~255;
 
             grayScaleImage[i][j] = newPixelVal;  
         }
